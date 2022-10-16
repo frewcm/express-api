@@ -39,17 +39,17 @@ const registerUser =asyncHandler(async (req, res) => {
         })
     }else{
         res.status(400)
-        throw new Error('Invalid user date')
+        throw new Error('Invalid user data')
     }
 })
 
-const loginUser =asyncHandler(async (req, res) => {
+const loginUser =async (req, res, next) => {
     const { email, password } = req.body
 
     const user = await User.findOne({email})
-
-    if(user && (await bcrypt.compare(password, user.password))){
-        res.status(201).json({
+try {
+   if(user && (await bcrypt.compare(password, user.password))){
+        res.status(200).json({
             _id:user.id, 
             name: user.name,
             email: user.email,
@@ -58,8 +58,12 @@ const loginUser =asyncHandler(async (req, res) => {
     } else{
         res.status(400)
         throw new Error('Invalid credentials')
-    }
-})
+    } 
+} catch (error) {
+    next(error)
+}
+}
+    
 
 const getMe = asyncHandler(async (req, res) => {
     
